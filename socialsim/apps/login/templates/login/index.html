@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/index.css' %}">
+        <title>Document</title>
+    </head>
+    <body>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <div>
+            <h1>Registration</h1>
+            <table>
+                <form action="/create" method="POST">
+                    {% csrf_token %}
+                    <tr>
+                        <td><label for="first_name">First Name</label></td>
+                        <td><input type="text" name="first_name"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="last_name">Last Name</label></td>
+                        <td><input type="text" name="last_name" id="last_name"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email</label></td>
+                        <td><input type="text" name="email" id="email"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="bdate">Birthday</label></td>
+                        <td><input type="date" name="bdate" id="bdate"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="password">Password</label></td>
+                        <td><input type="password" name="password" id="password"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="conf_pw">Confirm Password</label></td>
+                        <td><input type="password" name="conf_pw" id="conf_pw"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Register</button></td>
+                    </tr>
+                </form> 
+            </table>
+        </div>
+        <div>
+            <h1>Login</h1>
+            <table>
+                <form action="/login" method="POST">
+                    {% csrf_token %}
+                    <tr>
+                        <td><label for="username">Email</label></td>
+                        <td><input type="text" name="username"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="pword">Password</label></td>
+                        <td><input type="password" name="pword" id="pword"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="submit">Log in</button></td>
+                    </tr>
+                </form>
+            </table>
+        </div>
+    </body>
+</html>
