@@ -16,6 +16,9 @@ def error_report(request, errors):
 def index(request):
     return render(request, 'login/index.html')
 
+def login(request):
+    return render(request, 'login/login.html')
+
 def create_user(request):
     if request.method == 'POST':
         errors= User.objects.user_validator(request.POST)
@@ -24,14 +27,14 @@ def create_user(request):
         else:
             password= request.POST['password']
             passhash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-            new_user = User.objects.create(first_name = request.POST['first_name'], last_name=request.POST['last_name'], email=request.POST['email'], bdate=request.POST['bdate'], password=passhash)
+            new_user = User.objects.create(username = request.POST['Username'], email=request.POST['email'], password=passhash)
             request.session['current_user'] = new_user.id
             return redirect('/main/title')
     return redirect('/')
 
-def login(request):
+def loginPost(request):
     if request.method == 'POST':
-        user = User.objects.filter(email=request.POST['username'])
+        user = User.objects.filter(email=request.POST['email'])
         if user:
             logged_user = user[0]
             if bcrypt.checkpw(request.POST['pword'].encode(), logged_user.password.encode()):
@@ -41,7 +44,7 @@ def login(request):
                 messages.error(request, "Your username or password is incorrect")
         else:
             messages.error(request, "Your username or password is incorrect")
-    return redirect('/')
+    return redirect('/login')
 
 def logout(request):
     request.session.flush()

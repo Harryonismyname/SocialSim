@@ -2,27 +2,26 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         {% load static %}
         <link rel="stylesheet" href="{% static 'login/css/index.css' %}">
-        <title>Register</title>
+        <title>Login</title>
     </head>
     <body>
         <div class="container-fluid min-vh-100" id="wrapper">
             <div class="row justify-content-center">
-                <div class="col-lg-7 px-5 py-4 m-3" id="content">
+                <div class="col-lg-7 px-5 py-4 m-3"  id="content">
                     <div class="row justify-content-center">
                         <span class="col" id="header">
                             <span class="row"><h1 class="col text-center">Welcome</h1></span>
-                            <span class="row"><h1 class="col text-center">to</h1></span>
-                            <span class="row"><h1 class="col text-center">Social Sim</h1></span>
+                            <span class="row"><h1 class="col text-center">Back!</h1></span>
                         </span>
                     </div>
                     <div class="row justify-content-center">
                         <span class="col text-center align-self-center" id="submission">
-                            <h2>Create an Account</h2>
-                            <p>Already Have an Account? <a href="/login">Log In Here</a></p>
+                            <h2>Log In</h2>
+                            <p>Don't Have an Account? <a href="/">Register Here</a></p>
                             {% if messages %}
                             <ul class="messages list-group list-group-horizontal-sm">
                                 {% for message in messages %}
@@ -30,22 +29,16 @@
                                 {% endfor %}
                             </ul>
                             {% endif %}
-                            <form action="/create" method="POST">
+                            <form action="/login/post" method="POST">
                                 {% csrf_token %}
-                                <span class="form-group mx-5 row justify-content-center">
-                                    <input type="text" name="Username" placeholder="Username" class="form-control col-md-7">
-                                </span>
                                 <span class="form-group mx-5 row justify-content-center">
                                     <input type="text" name="email" placeholder="Email" class="form-control col-md-7">
                                 </span>
                                 <span class="form-group mx-5 row justify-content-center">
-                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control col-md-7">
+                                    <input type="password" name="pword" id="pword" placeholder="Password" class="form-control col-md-7">
                                 </span>
                                 <span class="form-group mx-5 row justify-content-center">
-                                    <input type="password" name="conf_pw" id="conf_pw" placeholder="Confirm Password" class="form-control col-md-7">
-                                </span>
-                                <span class="form-group mx-5 row justify-content-center">
-                                    <button type="submit" class="btn px-4"><h1>Sign up</h1></button>
+                                    <button type="submit" class="btn px-4"><h1>Log In</h1></button>
                                 </span>
                             </form>
                         </span>
@@ -53,5 +46,6 @@
                 </div>
             </div>
         </div>
+
     </body>
 </html>

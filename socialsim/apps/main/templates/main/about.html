@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'main/css/about.css' %}">
+        <title>Document</title>
+    </head>
+    <body>
+        <div class="container-fluid min-vh-100 p-3" id="wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light m-3" id="navBar">
+                <a href="/main/title" class="navbar-brand">Dashboard</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                    </ul>
+                    <a href="/logout" class="btn navbar-item my-2 my-sm-0" id="logout">Log Out</a>
+                </div>
+            </nav>
+            <div class="row p-3 pb-5 mx-3 overflow-auto" id="content">
+                <div class="col">
+                    <div class="row" id="slate">
+                        <h5 class="col-md-6 p-2 my-1">{{character.first_name}} {{character.last_name}}</h5>
+                        <button class="btn col-md-2 offset-md-2 btn-primary" data-toggle="modal" data-target="#editModal">Edit</button>
+                        <button class="btn btn-primary col-md-2" data-toggle="modal" data-target="#deleteModal">Delete</button>
+                    </div>
+                    <div class="row h-100 pt-3">
+                        <span class="col-md-5 px-0">
+                            <span class="list-group" id="list-tab" role="tablist">
+                                <a class="list-group-item list-group-item-action active" href="#list-about" id="list-about-list" data-toggle="list" role="tab" aria-controls="about">About</a>
+                                <a class="list-group-item list-group-item-action" id="list-connections-list" href="#list-connections" data-toggle="list" role="tab" aria-controls="connections">Connections</a>
+                            </span>
+                        </span>
+                        <div class="col-md-7">
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active overflow-auto" id="list-about" role="tabpanel" aria-labelledby="list-about-list">
+                                    <p class="p-5 text-center">{{character.bio}}</p>
+                                </div>
+                                <div class="tab-pane fade overflow-auto p-0" id="list-connections" role="tabpanel" aria-labelledby="list-connections-list">
+                                    <div class="accordion" id="accordionExample">
+                                    {% for connection in character.connections.all %}
+                                        <div class="border-0 card">
+                                            <div class="card-header accordianHeader" id="{{connection.contact.id}}">
+                                                <h2 class="mb-0">
+                                                <button id="{{connection.contact.id}}" class="connection btn btn-block btn-primary" type="button" data-toggle="collapse" data-target="#{{connection.contact.first_name}}{{connection.contact.id}}" aria-expanded="true" aria-controls="{{connection.contact.first_name}}{{connection.contact.id}}">{{connection.contact.first_name}} {{connection.contact.last_name}}</button>
+                                                </h2>
+                                            </div>
+                                    
+                                            <div id="{{connection.contact.first_name}}{{connection.contact.id}}" class="collapse accordionBody" aria-labelledby="{{connection.contact.id}}" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <span class="col-md-3">
+                                                            <h6>Opinion</h6>
+                                                            <p>{{connection.opinion}}</p>
+                                                        </span>
+                                                        <span class="col-md-3">
+                                                            <h6>Their Opinon</h6>
+                                                            <p>{% for person in people %}{% if connection.contact.id == person.owner.id %}{{person.opinion}}{% endif %}{% endfor %}</p>
+                                                        </span>
+                                                        <span class="col-md-6">
+                                                            <h5>Actions</h5>
+                                                        </span>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="card col-md-6 px-0">
+                                                            <p class="card-header">
+                                                                Log
+                                                            </p>
+                                                            <span class="card-body">
+                                                                <span data-spy='scroll' data-target=".card-header" data-offset='0' class="scrollspy-example">
+                                                                    <ul class="list-group">
+                                                                        {% for actions in logs %}
+                                                                        {% if actions.actor == connection.owner and actions.recipient == connection.contact or actions.recipient == connection.owner and actions.actor == connection.contact %}
+                                                                        <li class="list-group-item">{{actions.actor.first_name}} {{actions.action}} {{actions.recipient.first_name}} {% if actions.result >= 0 %}+{% endif %}{{actions.result}}</li>
+                                                                        {% endif %}
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                        <form action="/main/interact/{{connection.id}}" class="col-md-6" method="POST">
+                                                            {% csrf_token %}
+                                                            <span class="row">
+                                                                <span class="btn-group-vertical col" role="group">
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="compliment" aria-describedby="compliment">Compliment</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="compliment">+10</span>
+                                                                        </span>
+                                                                    </span>
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="help" aria-describedby="help">Help</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="help">+15</span>
+                                                                        </span>
+                                                                    </span>
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="save" aria-describedby="save">Save</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="save">+20</span>
+                                                                        </span>
+                                                                    </span>
+                                                                    
+                                                                </span>
+                                                                <span class="btn-group-vertical col" role="group">
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="insult" aria-describedby="insult">Insult</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="insult">-10</span>
+                                                                        </span>
+                                                                    </span>
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="hinder" aria-describedby="hinder">Hinder</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="hinder">-15</span>
+                                                                        </span>
+                                                                    </span>
+                                                                    <span class="input-group">
+                                                                        <button type="submit" class="btn btn-primary form-control" name="attack" aria-describedby="attack">Attack</button>
+                                                                        <span class="input-group-append">
+                                                                            <span class="input-group-text" id="attack">-20</span>
+                                                                        </span>
+                                                                    </span>
+                                                                </span>
+                                                            </span>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editCharacter" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editCharacter">Edit Character</h5>
+                                    <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="/main/edit/{{character.id}}" method="POST">
+                                        {% csrf_token %}
+                                        <span class="form-group row px-3">
+                                            <input type="text" name="first_name" value="{{ character.first_name }}" class="form-control col">
+                                        </span>
+                                        <span class="form-group row px-3">
+                                            <input type="text" name="last_name" value="{{ character.last_name }}" class="form-control col">
+                                        </span>
+                                        <span class="form-group row px-3">
+                                            <textarea name="bio" id="bio" cols="30" rows="10" class="form-control">{{character.bio}}</textarea>
+                                        </span>
+                                        <button type="submit" class="btn form-control">Update</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteCharacter">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header mb-0">
+                                    <h5 class="modal-title" id="deleteCharacter">Delete</h5>
+                                    <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <h6>Are You Sure?</h6>
+                                    <a href="/main/delete/{{ character.id }}" class="btn form-control" id="delete">Yes</a>
+                                    <button class="btn form-control" data-dismiss='modal' aria-label="Close">No</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    </body>
+</html>

@@ -1,0 +1,64 @@
+#wrapper
+{
+    background: #2C4251;
+}
+#navBar, #content, .modal-header
+{
+    background-color: #9CAEA9;
+}
+#mynetwork, .accordionBody, .modal-content input.form-control, .modal-content textarea, .modal-content select.form-control
+{
+    background-color: #CCDAD1;
+}
+button.btn-primary
+{
+    color: #CCDAD1;
+    border-color: #2C4251;
+    background: #2C4251;
+}
+button.btn-primary:hover, button.btn-primary:focus, button.btn-primary:active, button.btn-primary.active, button.open > .dropdown-toggle.btn-primary {
+    background: #2f4655;
+}
+.modal-content h4
+{
+    color: #CCDAD1;
+}
+button.btn-primary:active, button.btn-primary.active {
+    background: #2f4655;
+    box-shadow: none;
+}
+.accordianHeader:nth-child(odd)
+{
+    background-color: #2C4251;
+}
+.modal-content .form-control, span.row a.col
+{
+    color: #2C4251;
+}
+.modal-content, .modal-body
+{
+    background-color: #2C4251;
+}
+.modal-content button.form-control
+{
+    background-color: #9CAEA9;
+}
+
+div.col-md-5#accordionBox, #mynetwork
+{
+    height: 740px;
+    overflow-y: auto;
+}
+@media only screen and (max-width: 480px)
+{
+    div.col-md-5#accordionBox, #mynetwork
+    {
+        height: 275px;
+        overflow-y: auto;
+    }
+}
+button.delete
+{
+    background-color: #80475E;
+    color: #CCDAD1;
+}

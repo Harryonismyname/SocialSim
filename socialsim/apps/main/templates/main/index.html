@@ -3,79 +3,312 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+        
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'main/css/index.css' %}">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script type="text/javascript" src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
         <script type="text/javascript" src="https://unpkg.com/vis-network@latest/peer/umd/vis-network.min.js"></script>
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/vis-network/styles/vis-network.min.css">
         <title>Document</title>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('.toast').toast({
+                    autohide: false
+                });
+                $('.toast').toast('show');
+            })
+        </script>
     </head>
     <body>
-        <form action="/main/create/character" method="POST">
-            {% csrf_token %}
-            <input type="text" name="first_name" placeholder="First Name">
-            <input type="text" name="last_name" placeholder="Last Name">
-            <input type="number" name="age" placeholder="0">
-            <input type="text" name="title" placeholder="Title">
-            <button type="submit">Submit</button>
-        </form>
-        <p>Add connections</p>
-        <form action="/main/create/connection" method="POST">
-            {% csrf_token %}
-            <select name="who" id="who">
-                {% for character in characters %}
-                    <option id="{{character.id}}" value="{{character.id}}">{{character.first_name}} {{character.last_name}}</option>
-                {% endfor %}
-            </select>
-            <select name="to_whom" id="to_whom">
-                {% for character in characters %}
-                    <option id="{{character.id}}" value="{{character.id}}">{{character.first_name}} {{character.last_name}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Submit</button>
-        </form>
-        <ul>
-            {% for character in characters %}
-                <li id="{{character.id}}" class="character">{{character.first_name}} {{character.last_name}}</li>
-                <ul>
-                    {% for connection in character.connections.all %}
-                    <li title="{{connection.contact.id}}" id="{{connection.owner.id}}" class="contact"><p>{{connection.contact.first_name}} {{connection.contact.last_name}}</p><button>{{connection.opinion}}</button></li>
-                    {% endfor %}
-                </ul>
+        <div class="container-fluid p-3 min-vh-100" id="wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light m-3" id="navBar">
+                <a href="/main/title" class="navbar-brand">Dashboard</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Add
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <button class="btn dropdown-item" data-toggle="modal" data-target="#characterModal">Character</button>
+                                <button class="btn dropdown-item" data-toggle="modal" data-target="#connectionModal">Connection</button>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/logout" class="btn navbar-item my-2 my-sm-0" id="logout">Log Out</a>
+                </div>
+            </nav>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert toast ml-auto">
+                <div class="toast-header">
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">×</button>
+                </div>
+                <div class="toast-body">
+                    {{message}}
+                </div>
+            </div>
             {% endfor %}
-        </ul>
-        <div id="mynetwork"></div>
+            {% endif %}
+            <div class="row m-3 p-3" id="content">
+                <div id="mynetwork" class="col-md-7 d-inline-block p-1"></div>
+                <div class="col-md-5" id="accordionBox">
+                    <div class="accordion p-2 oveflow-auto" id="accordionExample">
+                        {% for character in characters %}
+                        <div class="border-0 card">
+                            <div class="card-header accordianHeader" id="{{character.id}}">
+                                <h2 class="mb-0">
+                                <button id="{{character.id}}" class="character btn btn-block btn-primary" type="button" data-toggle="collapse" data-target="#{{character.first_name}}{{character.id}}" aria-expanded="true" aria-controls="{{character.first_name}}{{character.id}}">{{character.first_name}} {{character.last_name}}</button>
+                                </h2>
+                            </div>
+                                <div id="{{character.first_name}}{{character.id}}" class="collapse accordionBody" aria-labelledby="{{character.id}}" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <h5 class="text-center">Connections</h5>
+                                        <div class="row oveflow-auto">
+                                            {% for connection in character.connections.all %}
+                                            <span class="col-md-12">
+                                                <span class="row oveflow-auto">
+                                                    <p class="col-md-3 contact" title="{{connection.contact.id}}" id="{{connection.owner.id}}">{{connection.contact.first_name}} {{connection.contact.last_name}}</p>
+                                                    <p class="col-md-3 opinion" id="{{connection.owner.id}}" title="{{connection.contact.id}}">{{connection.opinion}}</p>
+                                                    <form action="/main/interact/{{connection.id}}" class="col-md-4 oveflow-auto" method="POST">
+                                                        {% csrf_token %}
+                                                        <button type="button" class="btn btn-primary col" data-toggle="modal" data-target="#{{connection.owner.first_name}}{{connection.contact.first_name}}">Actions</button>
+                                                        
+                                                        <div class="modal fade" id="{{connection.owner.first_name}}{{connection.contact.first_name}}" tabindex="-1" role="dialog" aria-labelledby="perfomAction" aria-hidden="true">
+                                                            <div class="modal-dialog" role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="perfomAction">Actions</h5>
+                                                                        <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <span class="row">
+                                                                            <h4 class="my-0 py-0 col">{{connection.owner.first_name}} {{connection.owner.last_name}} To {{connection.contact.first_name}} {{connection.contact.last_name}}</h4>
+                                                                        </span>
+                                                                        <span class="row">
+                                                                            <span class="btn-group-vertical col" role="group">
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="compliment" value="10" aria-describedby="compliment">Compliment</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="compliment">+10</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="help" value="15" aria-describedby="help">Help</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="help">+15</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="save" value="20" aria-describedby="save">Save</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="save">+20</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                                
+                                                                            </span>
+                                                                            <span class="btn-group-vertical col" role="group">
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="insult" value="-10" aria-describedby="insult">Insult</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="insult">-10</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="hinder" value="-15" aria-describedby="hinder">Hinder</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="hinder">-15</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                                <span class="input-group">
+                                                                                    <button type="submit" class="btn btn-primary form-control" name="attack" value="-20" aria-describedby="attack">Attack</button>
+                                                                                    <span class="input-group-append">
+                                                                                        <span class="input-group-text" id="attack">-20</span>
+                                                                                    </span>
+                                                                                </span>
+                                                                            </span>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                    <button class="btn col-md-2 delete" data-toggle="modal" data-target="#delete{{connection.id}}">Delete</button>
+                                                    <div class="modal fade" id="delete{{connection.id}}" tabindex="-1" role="dialog" aria-labelledby="delete{{connection.owner.id}}{{connection.contact.id}}">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header mb-0">
+                                                                    <h5 class="modal-title" id="delete{{connection.owner.id}}{{connection.contact.first_name}}">Delete</h5>
+                                                                    <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <h6>Are You Sure?</h6>
+                                                                    <form action="/main/remove/contact/{{connection.id}}" method="POST" class="p-0 m-0">
+                                                                        {% csrf_token %}
+                                                                        <button class="btn btn-primary form-control delete" type="submit">Yes</button>
+                                                                    </form>
+                                                                    <button class="btn form-control" data-dismiss='modal' aria-label="Close">No</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </span>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="row justify-content-center">
+                                            <a href="/main/about/{{character.id}}" class="col text-center">More</a>
+                                        </span>
+                                    </div>
+                                </div>    
+                                
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade" id="characterModal" tabindex="-1" role="dialog" aria-labelledby="createCharacter" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="createCharacter">Add Character</h5>
+                            <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/main/create/character" method="POST">
+                                {% csrf_token %}
+                                <span class="form-group row px-3">
+                                    <input type="text" name="first_name" placeholder="First Name" class="form-control col">
+                                </span>
+                                <span class="form-group row px-3">
+                                    <input type="text" name="last_name" placeholder="Last Name" class="form-control col">
+                                </span>
+                                <span class="form-group row px-3">
+                                    <textarea name="bio" id="bio" cols="30" rows="10" class="form-control" placeholder="Bio"></textarea>
+                                </span>
+                                <button type="submit" class="btn form-control">Add</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="connectionModal" tabindex="-1" role="dialog" aria-labelledby="addConnect" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addConnect">Add Connection</h5>
+                            <button class="close" type="button" data-dismiss='modal' aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/main/create/connection" method="POST">
+                                {% csrf_token %}
+                                
+                                <span class="form-group row px-3 justify-content-center">
+                                    <label for="who" class="col text-center"><h4 class="my-0 py-0">From</h4></label>
+                                </span>
+                                <span class="form-group row px-3 justify-content-center">
+                                    <select name="who" id="who" class="form-control">
+                                        {% for character in characters %}
+                                            <option id="{{character.id}}" value="{{character.id}}">{{character.first_name}} {{character.last_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                                <span class="form-group row px-3 justify-content-center">
+                                    <label for="to_whom" class="col text-center"><h4 class="my-0 py-0">To</h4></label>
+                                </span>
+                                <span class="form-group row px-3 justify-content-center">
+                                    <select name="to_whom" id="to_whom" class="form-control">
+                                        {% for character in characters %}
+                                            <option id="{{character.id}}" value="{{character.id}}">{{character.first_name}} {{character.last_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </span>
+                                <span class="form-group row px-3 justify-content-center">
+                                    <button type="submit" class="btn form-control">Add</button>
+                                </span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script type="text/javascript">
         var characters = document.getElementsByClassName("character")
         var dataSet =[]
         for(const character of characters){
-            var node ={ id: character.id, label: character.textContent};
+            var node ={
+                id: character.id, 
+                label: character.textContent, 
+                color:"#2C4251", 
+                shape:'circle',
+                font: {
+                    color:"#9CAEA9"
+                    }
+                };
             dataSet.push(node);
             }
         // create an array with nodes
         var connections = document.getElementsByClassName("contact")
         var dataBlock= []
         var nodes = new vis.DataSet(dataSet);
+        var opinion = document.getElementsByClassName("opinion")
+        var relationshipValue = 0
         for(const connection of connections){
             console.log(connection)
             var id = connection.id
             var title = connection.title
             var dupes = 0
             for(const data of dataBlock){
-                var occurences = 0
                 if(id == data.to && title== data.from){
-                    occurences++
                     dupes++
                 }
             }
-            if(dupes==1){
-                continue
+            for(const opinions of opinion)
+            {
+                if(opinions.id == id && opinions.title==title)
+                {
+                    relationshipValue =opinions.textContent
+                }
+            }
+            var coolor = ''
+            if( relationshipValue >=0 && relationshipValue<50)
+            {
+                        coolor ="#2C4251"
+            }
+            else if(relationshipValue>=50)
+            {
+                coolor ="#3C6997"
             }
             else{
-                var edge = {from:id, to:title, value:occurences};
-                console.log(edge)
-                dataBlock.push(edge);
-                console.log(dataBlock)
+                coolor = "#80475E"
             }
+            var edge = {
+                from:id, 
+                to:title, 
+                value:relationshipValue, 
+                arrows:{to:{enabled:true, type: 'triangle'}}, 
+                color: coolor,
+                title: relationshipValue
+                };
+            console.log(edge)
+            dataBlock.push(edge);
+            console.log(dataBlock)
         }
         // create an array with edges
         var edges = new vis.DataSet(dataBlock);
@@ -86,7 +319,7 @@
             nodes: nodes,
             edges: edges
         };
-        var options = {};
+        var options = {"physics":{"repulsion":{"nodeDistance":200}, "minVelocity":0.75,"solver":"repulsion"}};
         var network = new vis.Network(container, data, options);
         </script>
     </body>

@@ -1,0 +1,24 @@
+#wrapper
+{
+    background: #2C4251;
+}
+#content, .btn, input.form-control
+{
+    background-color: #9CAEA9;
+}
+#header
+{
+    background: #2f4655;
+}
+#submission
+{
+    background: #CCDAD1;
+}
+#header h1
+{
+    color: #CCDAD1;
+}
+.btn, input.form-control, #submission, #submission a
+{
+    color: #2C4251;
+}
